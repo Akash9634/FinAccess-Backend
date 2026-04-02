@@ -12,7 +12,7 @@ target/
 .settings
 .springBeans
 .sts4-cache
-.db
+
 
 ### IntelliJ IDEA ###
 .idea
@@ -32,3 +32,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+#sqlite database
+*.db
