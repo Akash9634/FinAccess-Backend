@@ -1,5 +1,6 @@
 package com.finaccess.api.DTO;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,8 +12,10 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class LoginRequst {
+    @Email
     @NotBlank
-    private String username;
+    private String email;
+
     @NotBlank
     private String password;
 }
