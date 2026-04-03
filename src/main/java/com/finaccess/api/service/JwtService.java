@@ -1,6 +1,5 @@
 package com.finaccess.api.service;
 
-import com.finaccess.api.DTO.LoginRequst;
 import com.finaccess.api.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
