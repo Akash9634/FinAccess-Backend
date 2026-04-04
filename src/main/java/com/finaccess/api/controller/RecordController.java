@@ -6,17 +6,23 @@ import com.finaccess.api.DTO.RecordResponse;
 import com.finaccess.api.model.RecordType;
 import com.finaccess.api.service.RecordService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.data.domain.Pageable;
 import java.time.LocalDate;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/records")
+@Validated
 public class RecordController {
 
     private final RecordService recordService;
@@ -33,14 +39,27 @@ public class RecordController {
                 .body(recordService.createRecord(request));
     }
 
+    @PostMapping("/bulk")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<RecordResponse>> createRecords(
+            @Valid @RequestBody List<RecordRequest> requests) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(recordService.createRecords(requests));
+    }
+
     @GetMapping
     @PreAuthorize("hasAnyRole('VIEWER', 'ANALYST', 'ADMIN')")
-    public ResponseEntity<List<RecordResponse>> getRecords(
+    public ResponseEntity<Page<RecordResponse>> getRecords(
             @RequestParam(required = false) RecordType type,
             @RequestParam(required = false) String category,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
-        return ResponseEntity.ok(recordService.getRecords(type, category, from, to));
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "0")  int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("date").descending());
+        return ResponseEntity.ok(recordService.getRecords(type, category, from, to, keyword, pageable));
     }
 
     @GetMapping("/{id}")

@@ -2,16 +2,21 @@ package com.finaccess.api.service;
 
 import com.finaccess.api.DTO.RecordRequest;
 import com.finaccess.api.DTO.RecordResponse;
+import com.finaccess.api.exception.ResourceNotFoundException;
 import com.finaccess.api.model.FinancialRecord;
 import com.finaccess.api.model.RecordType;
 import com.finaccess.api.model.User;
 import com.finaccess.api.repository.RecordRepository;
 import com.finaccess.api.repository.UserRepository;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
 
+import org.springframework.data.domain.Pageable;
 import java.time.LocalDate;
 import java.util.List;
 
+@Service
 public class RecordService {
 
     private final RecordRepository recordRepository;
@@ -28,7 +33,7 @@ public class RecordService {
                 .getAuthentication()
                 .getName();
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Authenticated user not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Authenticated user not found"));
     }
 
     // create record — admin only
@@ -47,15 +52,36 @@ public class RecordService {
         return RecordResponse.from(recordRepository.save(record));
     }
 
-    // get all records with optional filters — viewer, analyst, admin
-    public List<RecordResponse> getRecords(RecordType type,
-                                           String category,
-                                           LocalDate from,
-                                           LocalDate to) {
-        return recordRepository.findWithFilters(type, category, from, to)
+    // create multiple records at once
+    public List<RecordResponse> createRecords(List<RecordRequest> requests) {
+        User currentUser = getCurrentUser();
+
+        List<FinancialRecord> records = requests.stream()
+                .map(request -> FinancialRecord.builder()
+                        .amount(request.getAmount())
+                        .type(request.getType())
+                        .category(request.getCategory())
+                        .date(request.getDate())
+                        .notes(request.getNotes())
+                        .createdBy(currentUser)
+                        .build())
+                .toList();
+
+        return recordRepository.saveAll(records)
                 .stream()
                 .map(RecordResponse::from)
                 .toList();
+    }
+
+    // get all records with optional filters — viewer, analyst, admin
+    public Page<RecordResponse> getRecords(RecordType type,
+                                           String category,
+                                           LocalDate from,
+                                           LocalDate to,
+                                           String keyword,
+                                           Pageable pageable) {
+        return recordRepository.findWithFilters(type, category, from, to, keyword, pageable)
+                .map(RecordResponse::from);
     }
 
     // get single record — all roles
@@ -87,6 +113,6 @@ public class RecordService {
     private FinancialRecord findActiveRecordById(Long id) {
         return recordRepository.findById(id)
                 .filter(r -> !r.isDeleted())
-                .orElseThrow(() -> new RuntimeException("Record not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Record not found with id: " + id));
     }
 }

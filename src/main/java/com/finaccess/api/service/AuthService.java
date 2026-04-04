@@ -3,6 +3,8 @@ package com.finaccess.api.service;
 import com.finaccess.api.DTO.AuthResponse;
 import com.finaccess.api.DTO.LoginRequest;
 import com.finaccess.api.DTO.RegisterRequest;
+import com.finaccess.api.exception.DuplicateResourceException;
+import com.finaccess.api.exception.ResourceNotFoundException;
 import com.finaccess.api.model.User;
 import com.finaccess.api.repository.UserRepository;
 import io.jsonwebtoken.Jwt;
@@ -28,11 +30,11 @@ public class AuthService {
 
     public AuthResponse register(RegisterRequest request){
         if(userRepository.existsByEmail(request.getEmail())){
-            throw new RuntimeException("Email already exists");
+            throw new DuplicateResourceException("Email already exists");
         }
 
         if (userRepository.existsByUsername(request.getUsername())) {
-            throw new RuntimeException("Username already taken");
+            throw new DuplicateResourceException("Username already taken");
         }
 
         User user = User.builder()
@@ -60,7 +62,7 @@ public class AuthService {
 
         // if we reach here credentials are valid
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         String token = jwtService.generateToken(user);
         return new AuthResponse(token, user.getEmail(), user.getUsername(), user.getRole().name());
