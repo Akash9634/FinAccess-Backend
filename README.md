@@ -15,6 +15,7 @@ A backend API for a finance dashboard system built with **Java Spring Boot**, **
 | ORM | Spring Data JPA |
 | Validation | Jakarta Validation |
 | Build Tool | Maven |
+| API Documentation | Springdoc OpenAPI (Swagger UI) |
 
 ---
 
@@ -69,6 +70,24 @@ jwt.expiration=86400000
 ```
 
 > **Note:** In a production system, `jwt.secret` should be stored in environment variables, not in `application.properties`.
+
+---
+
+## API Documentation
+
+Once the application is running, visit:
+
+```
+http://localhost:8080/swagger-ui/index.html
+```
+
+Swagger UI provides an interactive interface to explore and test all endpoints directly from the browser.
+
+To authenticate in Swagger UI:
+1. Call `POST /api/auth/login` to get your token
+2. Click the **Authorize** button at the top right
+3. Enter `Bearer <your_token>`
+4. All subsequent requests will include the token automatically
 
 ---
 
@@ -279,10 +298,10 @@ All errors return a consistent JSON structure:
 - ✅ Search support (keyword search on category and notes)
 - ✅ Soft delete on financial records
 - ✅ Bulk record creation
+- ✅ Swagger API documentation
 
 ## Planned Improvements
 
-- Swagger / OpenAPI documentation UI
 - Unit and integration tests
 - Token refresh endpoint
 - Rate limiting
