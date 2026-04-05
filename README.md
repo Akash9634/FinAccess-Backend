@@ -10,7 +10,7 @@ A backend API for a finance dashboard system built with **Java Spring Boot**, **
 |---|---|
 | Language | Java 17 |
 | Framework | Spring Boot 3.x |
-| Security | Spring Security + JWT (JJWT 0.12.3) |
+| Security | Spring Security + JWT (JJWT 0.11.5) |
 | Database | SQLite via Hibernate |
 | ORM | Spring Data JPA |
 | Validation | Jakarta Validation |
