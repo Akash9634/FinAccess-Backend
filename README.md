@@ -227,7 +227,7 @@ GET /api/dashboard/summary
     "monthlyTrends": [
         { "month": "2024-03", "income": 95000.00, "expenses": 17500.00 }
     ],
-    "recentActivity": [...]
+    "recentActivity": [.....]
 }
 ```
 
